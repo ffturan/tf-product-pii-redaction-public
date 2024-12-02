@@ -133,7 +133,7 @@ resource "aws_lambda_function" "lambda_pii_redact" {
   function_name = "${var.PROJECT_NAME}-${var.ENVIRONMENT_NAME}-pii-redact"
   role          = aws_iam_role.iam_role_for_lambda_pii_redact[0].arn
 
-  image_uri = "564400272142.dkr.ecr.us-east-1.amazonaws.com/lambda_image_to_text:latest"
+  image_uri = var.LAMBDA_PII_REDACT_IMAGE
   package_type = "Image"
 
   reserved_concurrent_executions = 10
@@ -149,7 +149,7 @@ resource "aws_lambda_function" "lambda_pii_redact" {
   environment {
     variables = {
       env           = var.ENVIRONMENT_NAME
-      PII_REDACT_DESTINATION_BUCKET = "564400272142-pmlp-dev-us-east-1-backup"
+      PII_REDACT_DESTINATION_BUCKET = var.S3_PII_REDACT_BUCKET
       PII_REDACT_CONFIDENCE_SCORE = "0.8"
       SNS_TOPIC_ARN = aws_sns_topic.shared-sns-topic-dlq.arn
     }
