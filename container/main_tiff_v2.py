@@ -26,7 +26,7 @@ sns_worker = boto3.client('sns')
 #
 s3_source_bucket = os.environ.get('PII_REDACT_SOURCE_BUCKET')
 s3_destination_bucket = os.environ.get('PII_REDACT_DESTINATION_BUCKET')
-redaction_confidence_score = os.environ.get('PII_REDACT_CONFIDENCE_SCORE')
+redaction_confidence_score = float(os.environ.get('PII_REDACT_CONFIDENCE_SCORE', 0.8))
 sns_topic_arn = os.environ['SNS_TOPIC_ARN']
 
 def blur_region(image, bbox):
