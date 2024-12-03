@@ -54,7 +54,7 @@ def process_image(image_bytes):
         print(f"Converted Image Mode: {image.mode}")
     
     img_byte_arr = io.BytesIO()
-    image.save(img_byte_arr, format='TIFF')
+    image.save(img_byte_arr, format='TIFF', compression='jpeg')
     img_byte_arr = img_byte_arr.getvalue()
 
     # Extract text using Textract
@@ -119,7 +119,7 @@ def process_image(image_bytes):
                     image = blur_region(image, (x1, y1, x2, y2))
     
     output_buffer = io.BytesIO()
-    image.save(output_buffer, format='TIFF')
+    image.save(output_buffer, format='TIFF', compression='jpeg')
     output_buffer.seek(0)
     return output_buffer.getvalue(), pii_response
 
