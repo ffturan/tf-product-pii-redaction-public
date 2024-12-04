@@ -147,7 +147,7 @@ def process_single_image(image):
                         y2 = y1 + geometry['height']
                         image = blur_region(image, (x1, y1, x2, y2))
 
-        return image, pii_response
+        return image, pii_response, textract_response
 
     except Exception as e:
         logger.error(f"Error in process_single_image: {str(e)}")
@@ -204,13 +204,15 @@ def process_pdf(pdf_bytes):
             
             processed_images = []
             all_pii_responses = []
+            all_text_responses = []
             
             # Process each page
             for i, image in enumerate(images):
                 logger.info(f"Processing page {i+1}")
-                processed_image, pii_response = process_single_image(image)
+                processed_image, pii_response, text_response = process_single_image(image)
                 processed_images.append(processed_image)
                 all_pii_responses.append(pii_response)
+                all_text_responses.append(text_response)
             
             # Create a new PDF using PyPDF
             output_pdf = io.BytesIO()
@@ -259,7 +261,7 @@ def process_pdf(pdf_bytes):
             logger.info(f"Final PDF size: {len(compressed_pdf)} bytes")
             logger.info(f"Number of pages processed: {len(processed_images)}")
             
-            return compressed_pdf, all_pii_responses
+            return compressed_pdf, all_pii_responses, all_text_responses
 
     except Exception as e:
         logger.error(f"Error in process_pdf: {str(e)}")
@@ -284,13 +286,13 @@ def lambda_handler(event, context):
             raise ValueError("Input PDF is invalid or corrupted")
         
         # Process the PDF
-        processed_pdf, pii_detected = process_pdf(pdf_bytes)
+        processed_pdf, pii_detected, text_detected = process_pdf(pdf_bytes)
         
         if processed_pdf is None:
             raise ValueError("PDF processing resulted in None output")
 
         # Upload the processed PDF back to S3
-        output_key = f"redacted/{key}"
+        output_key = f"documents/{key}"
         s3_worker.put_object(
             Bucket=s3_destination_bucket,
             Key=output_key,
@@ -300,11 +302,20 @@ def lambda_handler(event, context):
         )
 
         # Upload the PII response as JSON
-        json_key = f"redacted/{key}.json"
+        json_key = f"documents/{key}_pii.json"
         s3_worker.put_object(
             Bucket=s3_destination_bucket,
             Key=json_key,
             Body=json.dumps(pii_detected, indent=2),
+            ContentType='application/json'
+        )
+
+        # Upload the PII response as JSON
+        json_key = f"documents/{key}_textract.json"
+        s3_worker.put_object(
+            Bucket=s3_destination_bucket,
+            Key=json_key,
+            Body=json.dumps(text_detected, indent=2),
             ContentType='application/json'
         )
 
