@@ -7,7 +7,7 @@ import tempfile
 import logging
 from pdf2image import convert_from_bytes
 from pypdf import PdfWriter, PdfReader
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw
 
 #
 # ENABLE LOGGING
@@ -67,14 +67,24 @@ def sns_publish(sns_message):
         logger.error(f"Error publishing to SNS: {e}")
 
 #
-# BLUR FUNC
+# BLUR FUNC #1
 #
-def blur_region(image, bbox):
-    """Apply blur to a specific region of the image"""
+# def blur_region(image, bbox):
+#     """Apply blur to a specific region of the image"""
+#     x1, y1, x2, y2 = [int(coord) for coord in bbox]
+#     region = image.crop((x1, y1, x2, y2))
+#     blurred_region = region.filter(ImageFilter.GaussianBlur(radius=10))
+#     image.paste(blurred_region, (x1, y1))
+#     return image
+
+#
+# BLUR FUNC #2
+#
+def redact_region(image, bbox):
+    """Apply black rectangle to a specific region of the image"""
+    draw = ImageDraw.Draw(image)
     x1, y1, x2, y2 = [int(coord) for coord in bbox]
-    region = image.crop((x1, y1, x2, y2))
-    blurred_region = region.filter(ImageFilter.GaussianBlur(radius=10))
-    image.paste(blurred_region, (x1, y1))
+    draw.rectangle([x1, y1, x2, y2], fill='black')
     return image
 
 #
@@ -145,7 +155,7 @@ def process_single_image(image):
                         y1 = geometry['top']
                         x2 = x1 + geometry['width']
                         y2 = y1 + geometry['height']
-                        image = blur_region(image, (x1, y1, x2, y2))
+                        image = redact_region(image, (x1, y1, x2, y2))
 
         return image, pii_response, textract_response
 
