@@ -42,7 +42,31 @@ def detect_ssn(text):
     Detect Social Security Numbers using regular expressions.
     """
     # ssn_pattern = r'\b(?!000|666|9\d{2})([0-8]\d{2}|7([0-6]\d|7[012]))([-\s]?)(?!00)\d{2}\3(?!0000)\d{4}\b'
-    ssn_pattern = r'\b(?:[A-Za-z]{2})?(?!000|666|9\d{2})([0-8]\d{2}|7([0-6]\d|7[012]))([-\s]?)(?!00)\d{2}\3(?!0000)\d{4}\b'
+    '''
+        This pattern will now match:
+        Regular SSNs: 123-45-6789
+        SSNs with spaces: 123 45 6789
+        SSNs with two letters prefix: AB123-45-6789
+        SSNs with two letters and dash: AB-123-45-6789
+        SSNs with two letters and space: AB 123-45-6789
+        SSNs with two letters, no separator: AB123-45-6789    
+    '''
+    ssn_pattern = r'\b(?:[A-Za-z]{2}[-\s]?)?(?!000|666|9\d{2})([0-8]\d{2}|7([0-6]\d|7[012]))([-\s]?)(?!00)\d{2}\3(?!0000)\d{4}\b'
+
+    '''
+        This pattern will now match:
+        No separators: 123456789
+        With separators: 123-45-6789
+        With spaces: 123 45 6789
+        Mixed separators: 123-456789
+        Two letters, no separators: AB123456789
+        Two letters with separator: AB-123456789
+        Two letters with space: AB 123456789
+        Two letters, mixed format: AB-123 45 6789
+        Two letters, partial separators: AB-12345 6789
+    '''
+    # ssn_pattern = r'\b(?:[A-Za-z]{2}[-\s]?)?(?!000|666|9\d{2})([0-8]\d{2}|7([0-6]\d|7[012]))([-\s]?)(?!00)\d{2}(?:[-\s]?)(?!0000)\d{4}\b'
+
     
     matches = []
     for match in re.finditer(ssn_pattern, text):
