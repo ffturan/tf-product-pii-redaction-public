@@ -117,6 +117,11 @@ def process_single_image(image):
             Document={'Bytes': img_byte_arr}
         )
 
+        # Handle blank pages - if no blocks or only empty blocks are found
+        if not textract_response.get('Blocks'):
+            logger.info("Blank page detected - no text found")
+            return image, {'Entities': []}, {'Blocks': []}
+
         # Create a mapping of words to their bounding boxes
         word_to_geometry = {}
         full_text = []
@@ -142,9 +147,10 @@ def process_single_image(image):
 
         full_text = ' '.join(full_text)
         
+        # If no text was found after processing blocks, return original image
         if not full_text:
-            logger.warning("No text detected in image")
-            return image, {'Entities': []}
+            logger.info("No processable text detected in image")
+            return image, {'Entities': []}, textract_response
 
         # Detect SSNs using regex instead of Comprehend
         pii_response = detect_ssn(full_text)
@@ -168,7 +174,9 @@ def process_single_image(image):
 
     except Exception as e:
         logger.error(f"Error in process_single_image: {str(e)}")
-        raise
+        # Return the original image without modifications in case of error
+        return image, {'Entities': []}, {'Blocks': []}
+
 
 #
 # COMPRESS PDF FUNC
