@@ -41,7 +41,8 @@ def detect_ssn(text):
     """
     Detect Social Security Numbers using regular expressions.
     """
-    ssn_pattern = r'\b(?!000|666|9\d{2})([0-8]\d{2}|7([0-6]\d|7[012]))([-\s]?)(?!00)\d{2}\3(?!0000)\d{4}\b'
+    # ssn_pattern = r'\b(?!000|666|9\d{2})([0-8]\d{2}|7([0-6]\d|7[012]))([-\s]?)(?!00)\d{2}\3(?!0000)\d{4}\b'
+    ssn_pattern = r'\b(?:[A-Za-z]{2})?(?!000|666|9\d{2})([0-8]\d{2}|7([0-6]\d|7[012]))([-\s]?)(?!00)\d{2}\3(?!0000)\d{4}\b'
     
     matches = []
     for match in re.finditer(ssn_pattern, text):
