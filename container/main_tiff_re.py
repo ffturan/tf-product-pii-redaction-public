@@ -47,7 +47,7 @@ def detect_ssn(text):
             'Score': 1.0,  # Since regex is deterministic, we use 1.0 as confidence
             'Type': 'SSN'
         })
-    return matches
+    return {'Entities': matches}
 
 def redact_region(image, bbox):
     """Apply black rectangle to a specific region of the image"""
