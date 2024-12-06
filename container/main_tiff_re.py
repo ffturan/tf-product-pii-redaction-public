@@ -64,6 +64,7 @@ def process_image(image_bytes):
     print(f"Original Image Mode: {image.mode}")
     print(f"Image Size: {image.size}")
     print(f"Image Format: {image.format}")
+    print(f"Image Mode: {image.mode}")
     
     # Convert mode '1' (binary) to 'L' (grayscale) for processing
     if image.mode == '1':
@@ -113,16 +114,11 @@ def process_image(image_bytes):
         logger.info("No processable text detected in image")
         return image, {'Entities': []}, textract_response
     
-    # Detect SSNs using regex
-    detected_entities = detect_ssn(full_text)
-
-    # Create a response structure
-    pii_response = {
-        'Entities': detected_entities
-    }
+    # Detect SSNs using regex instead of Comprehend
+    pii_response = detect_ssn(full_text)
 
     # Process each detected SSN and redact the corresponding region
-    for entity in detected_entities:
+    for entity in pii_response['Entities']:
         begin_offset = entity['BeginOffset']
         
         # Find the word(s) that contain this SSN
