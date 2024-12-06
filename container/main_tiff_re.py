@@ -41,11 +41,13 @@ def detect_ssn(text):
     
     matches = []
     for match in re.finditer(ssn_pattern, text):
+        matched_text = match.group()  # Get the actual matched text
         matches.append({
             'BeginOffset': match.start(),
             'EndOffset': match.end(),
             'Score': 1.0,  # Since regex is deterministic, we use 1.0 as confidence
-            'Type': 'SSN'
+            'Type': 'SSN',
+            'Text': matched_text  # Add the matched text to the dictionary
         })
     return {'Entities': matches}
 
