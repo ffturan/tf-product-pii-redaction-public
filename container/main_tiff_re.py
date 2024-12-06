@@ -81,6 +81,11 @@ def process_image(image_bytes):
         Document={'Bytes': img_byte_arr}
     )
 
+    # Handle blank pages - if no blocks or only empty blocks are found
+    if not textract_response.get('Blocks'):
+        logger.info("Blank page detected - no text found")
+        return image, {'Entities': []}, {'Blocks': []}
+
     # Create a mapping of words to their bounding boxes
     word_to_geometry = {}
     full_text = []
@@ -138,10 +143,11 @@ def process_image(image_bytes):
                 # Apply black rectangle to just this word
                 image = redact_region(image, (x1, y1, x2, y2))
     
-    output_buffer = io.BytesIO()
-    image.save(output_buffer, format='TIFF', compression='jpeg')
-    output_buffer.seek(0)
-    return output_buffer.getvalue(), pii_response, textract_response
+    # output_buffer = io.BytesIO()
+    # image.save(output_buffer, format='TIFF', compression='jpeg')
+    # output_buffer.seek(0)
+    # return output_buffer.getvalue(), pii_response, textract_response
+    return image, pii_response, textract_response
 
 def sns_publish(sns_message):
     """Publish a message to the SNS topic"""
