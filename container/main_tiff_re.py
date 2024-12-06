@@ -36,8 +36,8 @@ def detect_ssn(text):
     - 123456789
     """
     # Pattern for SSN with or without separators
-    # ssn_pattern = r'\b(?!000|666|9\d{2})([0-8]\d{2}|7([0-6]\d|7[012]))([-\s]?)(?!00)\d{2}\3(?!0000)\d{4}\b'
-    ssn_pattern = r'\b([a-zA-z\W]*)(?=[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{4}\b)[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{4}\b'
+    ssn_pattern = r'\b(?!000|666|9\d{2})([0-8]\d{2}|7([0-6]\d|7[012]))([-\s]?)(?!00)\d{2}\3(?!0000)\d{4}\b'
+    # ssn_pattern = r'\b([a-zA-z\W]*)(?=[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{4}\b)[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{4}\b'
     
     matches = []
     for match in re.finditer(ssn_pattern, text):
@@ -143,11 +143,11 @@ def process_image(image_bytes):
                 # Apply black rectangle to just this word
                 image = redact_region(image, (x1, y1, x2, y2))
     
-    # output_buffer = io.BytesIO()
+    output_buffer = io.BytesIO()
     # image.save(output_buffer, format='TIFF', compression='jpeg')
-    # output_buffer.seek(0)
-    # return output_buffer.getvalue(), pii_response, textract_response
-    return image, pii_response, textract_response
+    image.save(output_buffer, format='TIFF')
+    output_buffer.seek(0)
+    return output_buffer.getvalue(), pii_response, textract_response
 
 def sns_publish(sns_message):
     """Publish a message to the SNS topic"""
