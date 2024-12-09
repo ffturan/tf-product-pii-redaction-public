@@ -72,14 +72,14 @@ def process_image(image_bytes):
     print(f"Image Mode: {image.mode}")
     
     # Convert mode '1' (binary) to 'L' (grayscale) for processing
-    if image.mode == '1':
-        print("Converting binary image to grayscale...")
-        image = image.convert('L')
-        print(f"Converted Image Mode: {image.mode}")
+    # if image.mode == '1':
+    #     print("Converting binary image to grayscale...")
+    #     image = image.convert('L')
+    #     print(f"Converted Image Mode: {image.mode}")
     
     img_byte_arr = io.BytesIO()
     # image.save(img_byte_arr, format='TIFF', compression='jpeg')
-    image.save(img_byte_arr, format='TIFF')
+    image.save(img_byte_arr, format='TIFF', compression='group4')
     img_byte_arr = img_byte_arr.getvalue()
 
     # Extract text using Textract
