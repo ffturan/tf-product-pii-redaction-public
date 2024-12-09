@@ -38,8 +38,8 @@ def detect_ssn(text):
     # Pattern for SSN with or without separators
     # ssn_pattern = r'\b(?!000|666|9\d{2})([0-8]\d{2}|7([0-6]\d|7[012]))([-\s]?)(?!00)\d{2}\3(?!0000)\d{4}\b'
     #ssn_pattern = r'\b([A-Za-z]{1}(&?)[a-zA-Z]{1})?(?=[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{4}\b)[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{4}\b'
-    # ssn_pattern = r'([A-Za-z]+&?[A-Za-z]*\d{3}-?\d{2}-?\d{4}|\d{3}-?\d{2}-?\d{4}|\d{9})'
-    ssn_pattern = r'([A-Za-z]+&?[A-Za-z]*\s?\d{3}\s?-?\s?\d{2}\s?-?\s?\d{4}|\d{3}\s?-?\s?\d{2}\s?-?\s?\d{4}|\d{3}\s?\d{2}\s?\d{4})'
+    ssn_pattern = r'([A-Za-z]+&?[A-Za-z]*\d{3}-?\d{2}-?\d{4}|\d{3}-?\d{2}-?\d{4}|\d{9})'
+    # ssn_pattern = r'([A-Za-z]+&?[A-Za-z]*\s?\d{3}\s?-?\s?\d{2}\s?-?\s?\d{4}|\d{3}\s?-?\s?\d{2}\s?-?\s?\d{4}|\d{3}\s?\d{2}\s?\d{4})'
 
     
     matches = []
@@ -78,7 +78,8 @@ def process_image(image_bytes):
         print(f"Converted Image Mode: {image.mode}")
     
     img_byte_arr = io.BytesIO()
-    image.save(img_byte_arr, format='TIFF', compression='jpeg')
+    # image.save(img_byte_arr, format='TIFF', compression='jpeg')
+    image.save(img_byte_arr, format='TIFF')
     img_byte_arr = img_byte_arr.getvalue()
 
     # Extract text using Textract
