@@ -90,9 +90,9 @@ def process_image(image_bytes):
     )
 
     # Handle blank pages - if no blocks or only empty blocks are found
-    if not textract_response.get('Blocks'):
-        logger.info("Blank page detected - no text found")
-        return image, {'Entities': []}, {'Blocks': []}
+    # if not textract_response.get('Blocks'):
+    #     logger.info("Blank page detected - no text found")
+    #     return image, {'Entities': []}, {'Blocks': []}
 
     # Create a mapping of words to their bounding boxes
     word_to_geometry = {}
@@ -126,36 +126,36 @@ def process_image(image_bytes):
     if not full_text:
         logger.info("No processable text detected in image")
         return image, {'Entities': []}, textract_response
-    
-    # Detect SSNs using regex instead of Comprehend
-    pii_response = detect_ssn(full_text)
+    else:
+        # Detect SSNs using regex instead of Comprehend
+        pii_response = detect_ssn(full_text)
 
-    # Process each detected SSN and redact the corresponding region
-    for entity in pii_response['Entities']:
-        begin_offset = entity['BeginOffset']
-        
-        # Find the word(s) that contain this SSN
-        for start_index, word_data in word_to_geometry.items():
-            word_end_index = start_index + len(word_data['text'])
+        # Process each detected SSN and redact the corresponding region
+        for entity in pii_response['Entities']:
+            begin_offset = entity['BeginOffset']
             
-            # Check if this word contains the SSN
-            if start_index <= begin_offset < word_end_index:
-                geometry = word_data['geometry']
+            # Find the word(s) that contain this SSN
+            for start_index, word_data in word_to_geometry.items():
+                word_end_index = start_index + len(word_data['text'])
                 
-                # Calculate bounding box for just this word
-                x1 = geometry['left']
-                y1 = geometry['top']
-                x2 = x1 + geometry['width']
-                y2 = y1 + geometry['height']
-                
-                # Apply black rectangle to just this word
-                image = redact_region(image, (x1, y1, x2, y2))
-    
-    output_buffer = io.BytesIO()
-    # image.save(output_buffer, format='TIFF', compression='jpeg')
-    image.save(output_buffer, format='TIFF')
-    output_buffer.seek(0)
-    return output_buffer.getvalue(), pii_response, textract_response
+                # Check if this word contains the SSN
+                if start_index <= begin_offset < word_end_index:
+                    geometry = word_data['geometry']
+                    
+                    # Calculate bounding box for just this word
+                    x1 = geometry['left']
+                    y1 = geometry['top']
+                    x2 = x1 + geometry['width']
+                    y2 = y1 + geometry['height']
+                    
+                    # Apply black rectangle to just this word
+                    image = redact_region(image, (x1, y1, x2, y2))
+        
+        output_buffer = io.BytesIO()
+        # image.save(output_buffer, format='TIFF', compression='jpeg')
+        image.save(output_buffer, format='TIFF')
+        output_buffer.seek(0)
+        return output_buffer.getvalue(), pii_response, textract_response
 
 def sns_publish(sns_message):
     """Publish a message to the SNS topic"""
