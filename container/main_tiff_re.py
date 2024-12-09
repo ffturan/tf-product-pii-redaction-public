@@ -68,10 +68,10 @@ def process_image(image_bytes):
     image = Image.open(io.BytesIO(image_bytes))
     
     # Print image information
-    print(f"Original Image Mode: {image.mode}")
-    print(f"Image Size: {image.size}")
-    print(f"Image Format: {image.format}")
-    print(f"Image Mode: {image.mode}")
+    # print(f"Original Image Mode: {image.mode}")
+    # print(f"Image Size: {image.size}")
+    # print(f"Image Format: {image.format}")
+    # print(f"Image Mode: {image.mode}")
     
     # Convert mode '1' (binary) to 'L' (grayscale) for processing
     # if image.mode == '1':
@@ -81,7 +81,8 @@ def process_image(image_bytes):
     
     img_byte_arr = io.BytesIO()
     # image.save(img_byte_arr, format='TIFF', compression='jpeg')
-    image.save(img_byte_arr, format='TIFF', compression='group4')
+    # image.save(img_byte_arr, format='TIFF', compression='group4')
+    image.save(img_byte_arr, format='TIFF')
     img_byte_arr = img_byte_arr.getvalue()
 
     # Extract text using Textract
@@ -89,10 +90,16 @@ def process_image(image_bytes):
         Document={'Bytes': img_byte_arr}
     )
 
-    # Handle blank pages - if no blocks or only empty blocks are found
-    # if not textract_response.get('Blocks'):
-    #     logger.info("Blank page detected - no text found")
-    #     return image, {'Entities': []}, {'Blocks': []}
+    # Check if there are any LINE or WORD blocks
+    has_text = any(
+        block['BlockType'] in ['LINE', 'WORD'] 
+        for block in textract_response.get('Blocks', [])
+    )
+
+    # If no text is found, return the original image bytes
+    if not has_text:
+        logger.info("No text detected in the image. Returning original image.")
+        return image_bytes, {'Entities': []}, textract_response
 
     # Create a mapping of words to their bounding boxes
     word_to_geometry = {}
@@ -121,6 +128,7 @@ def process_image(image_bytes):
 
     # Convert list to string for processing
     full_text = ' '.join(full_text)
+    print(full_text)
 
     # If no text was found after processing blocks, return original image
     if not full_text:
