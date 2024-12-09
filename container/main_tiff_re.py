@@ -36,11 +36,13 @@ def detect_ssn(text):
     - 123456789
     """
     # Pattern for SSN with or without separators
-    # ssn_pattern = r'\b(?!000|666|9\d{2})([0-8]\d{2}|7([0-6]\d|7[012]))([-\s]?)(?!00)\d{2}\3(?!0000)\d{4}\b'
-    #ssn_pattern = r'\b([A-Za-z]{1}(&?)[a-zA-Z]{1})?(?=[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{4}\b)[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{4}\b'
-    ssn_pattern = r'([A-Za-z]+&?[A-Za-z]*\d{3}-?\d{2}-?\d{4}|\d{3}-?\d{2}-?\d{4}|\d{9})'
-    # ssn_pattern = r'([A-Za-z]+&?[A-Za-z]*\s?\d{3}\s?-?\s?\d{2}\s?-?\s?\d{4}|\d{3}\s?-?\s?\d{2}\s?-?\s?\d{4}|\d{3}\s?\d{2}\s?\d{4})'
+    # WORKS FINE
+    # ssn_pattern = r'([A-Za-z]+&?[A-Za-z]*\d{3}-?\d{2}-?\d{4}|\d{3}-?\d{2}-?\d{4}|\d{9})'
 
+    # ssn_pattern = r'\b(?!000|666|9\d{2})([0-8]\d{2}|7([0-6]\d|7[012]))([-\s]?)(?!00)\d{2}\3(?!0000)\d{4}\b'
+    # ssn_pattern = r'\b([A-Za-z]{1}(&?)[a-zA-Z]{1})?(?=[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{4}\b)[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{4}\b'
+    # ssn_pattern = r'([A-Za-z]+&?[A-Za-z]*\s?\d{3}\s?-?\s?\d{2}\s?-?\s?\d{4}|\d{3}\s?-?\s?\d{2}\s?-?\s?\d{4}|\d{3}\s?\d{2}\s?\d{4})'
+    ssn_pattern = r'\b18901\b'
     
     matches = []
     for match in re.finditer(ssn_pattern, text):
