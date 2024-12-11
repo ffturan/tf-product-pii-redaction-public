@@ -30,7 +30,7 @@ sns_topic_arn = os.environ['SNS_TOPIC_ARN']
 def detect_ssn(text):
     
     # WORKS FINE
-    ssn_pattern = r'(^(AP|A&P|NC|NX|NR|NL)\d{3}-?\s?\d{2}-?\s?\d{4})|((?!666|000|[9..])\d{3}-\d{2}-\d{4})|(?!666|000|[9..])\d{9}|((?!666|000|[9..]])\d{3}\s\d{2}\s\d{4})'
+    ssn_pattern = r'(^(AP|A&P|NC|NX|NR|NL)\d{3}-?\s?\d{2}-?\s?\d{4})|((?!666|000|[9..])\d{3}-\d{2}-\d{4})|(?!666|000|[9..])\d{9}|((?!666|000|[9..])\d{3}\s\d{2}\s\d{4})'
     # ssn_pattern = r'(^(AP|A&P|NC|NX|NR|NL)\d{3}-?\s?\d{2}-?\s?\d{4})|((?!666|000|9\\d{2})\d{3}-\d{2}-\d{4})|((?!666|000|9\\d{2})\d{9})|((?!666|000|9\\d{2})\d{3}\s\d{2}\s\d{4})'
     # WORKS FINE [ALTERNATIVE 1]
     # ssn_pattern = r'(^(AP|A&P|NC|NX|NR|NL)\d{3}-?\s?\d{2}-?\s?\d{4})|(\d{3}-\d{2}-\d{4})|(\d{9})|(\d{3}\s\d{2}\s\d{4})'
