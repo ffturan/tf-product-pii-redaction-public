@@ -27,10 +27,19 @@ s3_source_bucket = os.environ.get('PII_REDACT_SOURCE_BUCKET')
 s3_destination_bucket = os.environ.get('PII_REDACT_DESTINATION_BUCKET')
 sns_topic_arn = os.environ['SNS_TOPIC_ARN']
 
+def has_less_than_9_digits(text):
+  digit_count = 0
+  for char in text:
+    if char.isdigit():
+      digit_count += 1
+      if digit_count > 9:
+        return False
+  return True
+
 def detect_ssn(text):
     
     # WORKS FINE
-    ssn_pattern = r'(^(AP|A&P|NC|NX|NR|NL)\d{3}-?\s?\d{2}-?\s?\d{4})|((?!666|000|[9..])\d{3}-\d{2}-\d{4})|(?!666|000|[9..])\s\d{9}\s|((?!666|000|9\\d{2})\d{3}\s\d{2}\s\d{4})'
+    ssn_pattern = r'(^(AP|A&P|NC|NX|NR|NL)\d{3}-?\s?\d{2}-?\s?\d{4})|((?!666|000|[9..])\d{3}-\d{2}-\d{4})|(?!666|000|[9..])\d{9}|((?!666|000|9\\d{2})\d{3}\s\d{2}\s\d{4})'
     # ssn_pattern = r'(^(AP|A&P|NC|NX|NR|NL)\d{3}-?\s?\d{2}-?\s?\d{4})|((?!666|000|9\\d{2})\d{3}-\d{2}-\d{4})|((?!666|000|9\\d{2})\d{9})|((?!666|000|9\\d{2})\d{3}\s\d{2}\s\d{4})'
     # WORKS FINE [ALTERNATIVE 1]
     # ssn_pattern = r'(^(AP|A&P|NC|NX|NR|NL)\d{3}-?\s?\d{2}-?\s?\d{4})|(\d{3}-\d{2}-\d{4})|(\d{9})|(\d{3}\s\d{2}\s\d{4})'
@@ -44,13 +53,14 @@ def detect_ssn(text):
     matches = []
     for match in re.finditer(ssn_pattern, text):
         matched_text = match.group()  # Get the actual matched text
-        matches.append({
-            'BeginOffset': match.start(),
-            'EndOffset': match.end(),
-            'Score': 1.0,  # Since regex is deterministic, we use 1.0 as confidence
-            'Type': 'SSN',
-            'Text': matched_text  # Add the matched text to the dictionary
-        })
+        if has_less_than_9_digits(matched_text):
+            matches.append({
+                'BeginOffset': match.start(),
+                'EndOffset': match.end(),
+                'Score': 1.0,  # Since regex is deterministic, we use 1.0 as confidence
+                'Type': 'SSN',
+                'Text': matched_text  # Add the matched text to the dictionary
+            })
     return {'Entities': matches}
 
 def redact_region(image, bbox):
