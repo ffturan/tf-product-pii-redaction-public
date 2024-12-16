@@ -1,0 +1,5 @@
+boto3
+pillow
+urllib3
+pdf2image
+pypdf
