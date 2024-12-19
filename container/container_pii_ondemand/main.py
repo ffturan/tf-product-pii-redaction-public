@@ -11,41 +11,6 @@ aurora_password = os.environ.get('AURORA_PASSWORD_PARAMETER')
 aurora_host = os.environ.get('AURORA_HOST_PARAMETER')
 aurora_db = os.environ.get('AURORA_DB_PARAMETER')
 
-def get_parameters():
-    """Fetch database connection parameters from Parameter Store"""
-    ssm_worker = boto3.client('ssm')
-    
-    # Define the parameters to fetch
-    parameters = [
-        aurora_username,
-        aurora_host,
-        aurora_db
-    ]
-    
-    response = ssm_worker.get_parameters(
-        Names=parameters,
-        WithDecryption=True
-    )
-    
-    # Create a dictionary of parameters
-    param_dict = {param['Name']: param['Value'] for param in response['Parameters']}
-    
-    # Get password from Secrets Manager
-    # secret_name = "mysecretname"
-    # secrets_client = boto3.client('secretsmanager')
-    # secret_response = secrets_client.get_secret_value(SecretId=secret_name)
-    # secret = json.loads(secret_response['SecretString'])
-    
-    #'password': secret['password'],
-    credentials = {
-        'username': param_dict.get(aurora_username),
-        'password': param_dict.get(aurora_password),
-        'host': param_dict.get(aurora_host),
-        'db': param_dict.get(aurora_db)
-    }
-    
-    return credentials
-
 def execute_query(connection, query):
     """Execute SQL query and return results"""
     try:
@@ -69,14 +34,30 @@ def execute_query(connection, query):
 def lambda_handler(event, context):
     try:
         # Get database credentials and connection info
-        credentials = get_parameters()
+        ssm = boto3.client('ssm')
+        respone = ssm.get_parameter(Name=aurora_username, WithDecryption=True)
+        db_username = respone['Parameter']['Value']
+        # Debug
+        # print(db_username)
+        respone = ssm.get_parameter(Name=aurora_password, WithDecryption=True)
+        db_password = respone['Parameter']['Value']
+        # Debug
+        # print(db_password)
+        respone = ssm.get_parameter(Name=aurora_host, WithDecryption=True)
+        db_host = respone['Parameter']['Value']
+        # Debug
+        # print(db_host)
+        respone = ssm.get_parameter(Name=aurora_db, WithDecryption=True)
+        db_db = respone['Parameter']['Value']
+        # Debug
+        # print(db_db)
         
         # Establish database connection
         connection = psycopg2.connect(
-            user=credentials['username'],
-            password=credentials['password'],
-            host=credentials['host'],
-            database=credentials['db']
+            user=db_username,
+            password=db_password,
+            host=db_host,
+            database=db_db
         )
         
         # Example query - replace with your SQL
